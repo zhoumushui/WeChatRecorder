@@ -1,0 +1,15 @@
+Button State:
+
+	onTouchEvent
+	
+Dialog State:
+	RECORDING
+	WANT_CANCEL
+	LENTH_SHORT
+	
+	
+AudioManager:
+	prepare() -> end prepare -> callback
+	cancel()
+	release() -> callback to activity
+	getVoiceLevel();	
