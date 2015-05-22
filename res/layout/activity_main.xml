@@ -19,7 +19,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" >
 
-        <com.zms.wechatrecorder.view.AudioRecorderButton
+        <com.zms.wechatrecorder.view.AudioRecordButton
             android:id="@+id/btnRecorder"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -33,7 +33,7 @@
             android:padding="5dp"
             android:text="@string/btn_recorder_normal"
             android:textColor="#727272" >
-        </com.zms.wechatrecorder.view.AudioRecorderButton>
+        </com.zms.wechatrecorder.view.AudioRecordButton>
 
         <View
             android:layout_width="match_parent"

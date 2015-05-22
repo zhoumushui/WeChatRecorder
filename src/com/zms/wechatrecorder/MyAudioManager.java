@@ -49,7 +49,7 @@ public class MyAudioManager {
 				fileDir.mkdirs();
 			String fileName = generateFileName();
 			File file = new File(fileDir, fileName);
-			
+
 			currentFilePath = file.getAbsolutePath();
 			mediaRecorder = new MediaRecorder();
 			// 设置输出文件
@@ -109,5 +109,9 @@ public class MyAudioManager {
 			file.delete();
 			currentFilePath = null;
 		}
+	}
+
+	public String getCurrentPath() {
+		return currentFilePath;
 	}
 }

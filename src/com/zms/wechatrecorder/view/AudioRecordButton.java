@@ -13,7 +13,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 
-public class AudioRecorderButton extends Button {
+public class AudioRecordButton extends Button {
 	private static final int STATE_NORMAL = 1;
 	private static final int STATE_RECORDING = 2;
 	private static final int STATE_WANT_CANCEL = 3;
@@ -22,18 +22,20 @@ public class AudioRecorderButton extends Button {
 
 	private int currentState = STATE_NORMAL;
 	private boolean isRecording = false;
-	private MyDialogManager dialogManager;
+	private AudioRecordDialog dialogManager;
 	private MyAudioManager audioManager;
 
 	private float mTime;
+	// 是否触发LongClick
+	private boolean isReady = false;
 
-	public AudioRecorderButton(Context context) {
+	public AudioRecordButton(Context context) {
 		this(context, null);
 	}
 
-	public AudioRecorderButton(Context context, AttributeSet attrs) {
+	public AudioRecordButton(Context context, AttributeSet attrs) {
 		super(context, attrs);
-		dialogManager = new MyDialogManager(getContext());
+		dialogManager = new AudioRecordDialog(getContext());
 
 		String dir = Environment.getExternalStorageDirectory()
 				+ "/zms_chat_audios";
@@ -45,6 +47,7 @@ public class AudioRecorderButton extends Button {
 
 			@Override
 			public boolean onLongClick(View v) {
+				isReady = true;
 				audioManager.prepareAudio();
 				return false;
 			}
@@ -58,6 +61,20 @@ public class AudioRecorderButton extends Button {
 			mHanlder.sendEmptyMessage(MSG_AUDIO_PREPARED);
 
 		}
+	}
+
+	/**
+	 * 录音完成后的回调
+	 * 
+	 */
+	public interface AudioRecordFinishListener {
+		void onFinish(float second, String filePath);
+	}
+
+	private AudioRecordFinishListener audioRecordFinishListener;
+
+	public void setAudioRecordFinishListener(AudioRecordFinishListener listener) {
+		audioRecordFinishListener = listener;
 	}
 
 	private Runnable getVolumeRunnable = new Runnable() {
@@ -99,6 +116,7 @@ public class AudioRecorderButton extends Button {
 				dialogManager.updateVolumeLevel(audioManager.getVoiceLevel(7));
 				break;
 			case MSG_DIALOG_DISMISS:
+				dialogManager.dismissDialog();
 
 				break;
 
@@ -125,24 +143,40 @@ public class AudioRecorderButton extends Button {
 				// 根据X，Y的坐标判断是否想要取消
 				if (wantCancel(x, y)) {
 					changeState(STATE_WANT_CANCEL);
+					dialogManager.stateWantCancel();
 				} else {
 					changeState(STATE_RECORDING);
+					dialogManager.stateRecording();
 				}
 			}
 
 			break;
 
 		case MotionEvent.ACTION_UP:
-
-			if (currentState == STATE_RECORDING) {
+			// 没有触发longClick
+			if (!isReady) {
+				resetState();
+				return super.onTouchEvent(event);
+			}
+			// prepare未完成就up,录音时间过短
+			if (!isRecording || mTime < 0.6f) {
+				dialogManager.stateLengthShort();
+				audioManager.cancel();
+				mHanlder.sendEmptyMessageDelayed(MSG_DIALOG_DISMISS, 1300);
+			} else if (currentState == STATE_RECORDING) { // 正常录制结束
 				dialogManager.dismissDialog();
+				audioManager.release();
 
-				// TODO: release
-				// TODO: callbackToActivity
+				// callbackToActivity
+				if (audioRecordFinishListener != null) {
+					audioRecordFinishListener.onFinish(mTime,
+							audioManager.getCurrentPath());
+				}
+
 			} else if (currentState == STATE_WANT_CANCEL) {
 				dialogManager.dismissDialog();
+				audioManager.cancel();
 
-				// TODO: cancel
 			}
 			resetState();
 			break;
@@ -159,6 +193,7 @@ public class AudioRecorderButton extends Button {
 	private void resetState() {
 
 		isRecording = false;
+		isReady = false;
 		changeState(STATE_NORMAL);
 		mTime = 0;
 	}

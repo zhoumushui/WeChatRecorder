@@ -9,14 +9,14 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-public class MyDialogManager {
+public class AudioRecordDialog {
 	private Dialog dialog;
 	private ImageView imageRecord, imageVolume;
 	private TextView textHint;
 
 	private Context context;
 
-	public MyDialogManager(Context context) {
+	public AudioRecordDialog(Context context) {
 		this.context = context;
 	}
 
@@ -79,9 +79,9 @@ public class MyDialogManager {
 	 */
 	public void updateVolumeLevel(int level) {
 		if (dialog != null && dialog.isShowing()) {
-			imageRecord.setVisibility(View.VISIBLE);
-			imageVolume.setVisibility(View.VISIBLE);
-			textHint.setVisibility(View.VISIBLE);
+			// imageRecord.setVisibility(View.VISIBLE);
+			// imageVolume.setVisibility(View.VISIBLE);
+			// textHint.setVisibility(View.VISIBLE);
 
 			int volumeResId = context.getResources().getIdentifier(
 					"icon_volume_" + level, "drawable",
