@@ -5,7 +5,6 @@ import com.zms.wechatrecorder.MyAudioManager.AudioStateChangeListener;
 import com.zms.wechatrecorder.R;
 
 import android.content.Context;
-import android.media.AudioManager;
 import android.os.Environment;
 import android.os.Handler;
 import android.util.AttributeSet;
